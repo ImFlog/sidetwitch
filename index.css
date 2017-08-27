@@ -1,0 +1,17 @@
+#twitch-sideplayer-wrapper {
+position: fixed; bottom: 0; right: 0; z-index: 10000000000000000
+}
+
+#close-twitch-sideplayer {
+	position: relative;
+    width: 24px;
+    height: 24px;
+    top: 24px;
+    opacity: 0.8;
+    margin: 0px;
+    padding: 0px;
+    -webkit-filter: invert(1);
+    filter: invert(1);
+    cursor: pointer;
+    background: url('chrome-extension://__MSG_@@extension_id__/x-circle.svg');
+}
