@@ -9,10 +9,16 @@ let opts = {
 
 const containerId = 'twitch-sideplayer-container'
 
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message.type && (message.type === 'CHANNEL_NAME')) {
+        startVideo(message.text)
+    }
+})
+
 function startVideo(channelUrl) {
     if(document.getElementById(containerId)) {
         removeContainer(channelUrl)
-    } 
+    }
     createContainer(channelUrl)
 }
 
@@ -34,9 +40,3 @@ function createContainer(channelUrl) {
         })
     })
 }
-
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    if (message.type && (message.type === 'CHANNEL_NAME')) {
-        startVideo(message.text)
-    }
-})

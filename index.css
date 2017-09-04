@@ -1,5 +1,8 @@
 #twitch-sideplayer-wrapper {
-position: fixed; bottom: 0; right: 0; z-index: 10000000000000000
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 10000000000000000
 }
 
 #close-twitch-sideplayer {
