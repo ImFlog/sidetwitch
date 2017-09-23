@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Chrome Twitch Sideplayer",
   "description": "Twitch Sideplayer",
-  "version": "0.02",
+  "version": "0.0.1",
   "permissions": [
     "activeTab", "tabs"
   ],
@@ -25,7 +25,7 @@
   "background": {
     "scripts": ["background.js"]
   },
-  
+
   "web_accessible_resources": [ "index.html", "index.css", "x-circle.svg", "play-button.png" ],
   "permissions": [ "*://*/*", "storage"]
 }

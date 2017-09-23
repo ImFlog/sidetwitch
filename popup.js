@@ -1,5 +1,7 @@
 'use strict'
 
+const createType = 'CREATE_CHANNEL'
+
 document.getElementById('start-stream').addEventListener(
     'click', sendStartMessage, false)
 
@@ -12,6 +14,6 @@ document.getElementById("channel-name").addEventListener("keypress",
 
 function sendStartMessage() {
 	let element = document.getElementById('channel-name')
-	chrome.runtime.sendMessage({type: 'CHANNEL_NAME', text: element.value})
+	chrome.runtime.sendMessage({type: createType, text: element.value})
     window.close()
 }
