@@ -22,17 +22,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 })
 
 function startVideo(channelUrl) {
-    clearPage(channelUrl)
-    createContainer(channelUrl)
+    // TODO : clean this
+    let container = document.getElementById(containerId)
+    if (!container) {
+        createContainer(channelUrl)
+    } else if(container.children[0].children[1].src != channelUrl) {
+        clearPage(channelUrl)
+        createContainer(channelUrl)
+    }
 }
 
 function clearPage(channelUrl) {
-    // TODO : clean this
-    let container = document.getElementById(containerId)
-    if(container && container.children[0].children[1].src != channelUrl) {
-        let elem = document.getElementById(containerId)
-        elem.parentNode.removeChild(elem)
-    }
+    let elem = document.getElementById(containerId)
+    elem.parentNode.removeChild(elem)
 }
 
 function removeContainer() {
