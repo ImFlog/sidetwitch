@@ -1,0 +1,65 @@
+html, body {
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 430px;
+    height: 125px;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', 'Open Sans', 'Arial', sans-serif;
+    text-align: center;
+    background: white;
+}
+
+body.visible {
+    height: 125px;
+}
+
+#container {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    margin: -5px 0 0 0;
+    padding: 5px 0 0 0;
+    border: none;
+    border-radius: 5px;
+    background: white;
+    z-index: 1;
+    -webkit-transition: height 300ms ease-out;
+}
+
+body.visible #container {
+    height: 210px;
+}
+
+input[type="text"] {
+    display: block;
+    margin: auto;
+    margin-top: 10px;
+    width: 80%;
+    height: 32px;
+    font-family: sans-serif;
+    font-size: 18px;
+    appearance: none;
+    box-shadow: none;
+    border-radius: none;
+    text-align: center;
+}
+
+#start-stream {
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    background: url('chrome-extension://__MSG_@@extension_id__/img/play-button.png');
+}
+
+::-webkit-input-placeholder {
+    text-align: center;
+}

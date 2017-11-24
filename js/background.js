@@ -1,6 +1,6 @@
 'use strict'
 
-const urlBase = 'https://player.twitch.tv/?channel='
+// const urlBase = 'https://player.twitch.tv/?channel='
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
 let currentChannel = ''
@@ -15,6 +15,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
 })
 
+// TODO : add pause message on non activated tab ?
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (currentChannel != '') {
         notifyContainerCreation()
@@ -43,7 +44,7 @@ function notifyContainerCreation() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(
             tabs[0].id,
-            {type: createType, text: urlBase + currentChannel},
+            {type: createType, text: currentChannel},
             () => {}
         )
     })
