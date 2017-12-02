@@ -1,12 +1,11 @@
 #twitch-sideplayer-container {
     position: fixed;
-    bottom: 0;
-    right: 0;
-    z-index: 10000000000000000
+    z-index: 10000000000000000;
 }
 
 #close-twitch-sideplayer {
     position: relative;
+    float: left;
     width: 24px;
     height: 24px;
     top: 24px;
@@ -16,5 +15,21 @@
     -webkit-filter: invert(1);
     filter: invert(1);
     cursor: pointer;
+    /*TODO: change urls to be FF complant */
     background: url('chrome-extension://__MSG_@@extension_id__/img/x-circle.svg');
+}
+
+#move-twitch-sideplayer {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    top: 24px;
+    opacity: 0.8;
+    margin-left: 24px;
+    padding-left: 0px;
+    -webkit-filter: invert(1);
+    filter: invert(1);
+    cursor: move;
+    /* TODO: change urls to be FF compliant */
+    background: url('chrome-extension://__MSG_@@extension_id__/img/move.svg');
 }

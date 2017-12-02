@@ -27,6 +27,12 @@
             "scripts": ["js/background.js"]
         },
 
-        "web_accessible_resources": [ "html/wrapper.html", "css/wrapper.css", "img/x-circle.svg", "img/play-button.png" ],
+        "web_accessible_resources": [
+            "html/wrapper.html",
+            "css/wrapper.css",
+            "img/x-circle.svg",
+            "img/move.svg",
+            "img/play-button.png"
+        ],
         "permissions": [ "*://*/*", "storage"]
     }
