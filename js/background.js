@@ -1,8 +1,9 @@
 'use strict'
 
-// const urlBase = 'https://player.twitch.tv/?channel='
+// TODO : This is duplicated ...
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
+const pauseType = 'PAUSE_CHANNEL'
 let currentChannel = ''
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
@@ -48,14 +49,34 @@ function notifyContainerCreation() {
             () => {}
         )
     })
+    chrome.tabs.query({active: false, currentWindow: true}, function(tabs) {
+        for (var i = 0; i < tabs.length; i++) {
+            chrome.tabs.sendMessage(
+                tabs[i].id,
+                {type: pauseType},
+                () => {}
+            )
+        }
+    })
 }
 
 function notifyContainerDeletion() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.tabs.sendMessage(
-            tabs[0].id,
-            {type: removeType},
-            () => {}
-        )
+        for (var i = 0; i < tabs.length; i++) {
+            chrome.tabs.sendMessage(
+                tabs[i].id,
+                {type: removeType},
+                () => {}
+            )
+        }
+    })
+    chrome.tabs.query({active: false, currentWindow: true}, function(tabs) {
+        for (var i = 0; i < tabs.length; i++) {
+            chrome.tabs.sendMessage(
+                tabs[i].id,
+                {type: removeType},
+                () => {}
+            )
+        }
     })
 }

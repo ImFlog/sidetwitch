@@ -3,6 +3,7 @@
 const containerId = 'twitch-sideplayer-container'
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
+const pauseType = 'PAUSE_CHANNEL'
 
 var player = null
 var selected = null // Object of the element to be moved
@@ -15,6 +16,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             startVideo(message.text)
         } else if (message.type === removeType) {
             clearPage()
+        } else if (message.type === pauseType) {
+            player.pause()
         }
     }
 })
@@ -26,6 +29,8 @@ function startVideo(channelId) {
     } else if(player.getChannel() != channelId) {
         clearPage()
         createContainer(channelId)
+    } else if(player.isPaused()) {
+        player.play()
     }
 }
 
@@ -51,7 +56,6 @@ function drag_init(elem) {
     y_elem = y_pos - selected.offsetTop
 }
 
-// Will be called when user is dragging an element
 function move_elem(e) {
     x_pos = document.all ? window.event.clientX : e.pageX
     y_pos = document.all ? window.event.clientY : e.pageY
@@ -61,14 +65,9 @@ function move_elem(e) {
         selected.style.top = (y_pos - y_elem) + 'px'
 
         // Remove previously set right position
-        selected.style.removeProperty('right');
-        selected.style.removeProperty('bottom');
+        selected.style.removeProperty('right')
+        selected.style.removeProperty('bottom')
     }
-}
-
-// Destroy the object when we are done
-function destroy() {
-    selected = null
 }
 
 // TODO : split into multiple functions for readability
@@ -85,12 +84,14 @@ function createContainer(channelId) {
     let move = document.createElement('div')
     move.id = 'move-twitch-sideplayer'
     move.style.display = 'none'
-    move.onmousedown = function () {
-        drag_init(node);
-        return false;
-    };
+    move.onmousedown = function() {
+        drag_init(node)
+        return false
+    }
     document.onmousemove = move_elem
-    document.onmouseup = destroy
+    document.onmouseup = function() {
+        selected = null
+    }
 
     node.appendChild(close)
     node.appendChild(move)
@@ -122,5 +123,5 @@ function createContainer(channelId) {
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
         player = embed.getPlayer()
         player.play()
-    });
+    })
 }

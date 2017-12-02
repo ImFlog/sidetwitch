@@ -1,6 +1,13 @@
 #twitch-sideplayer-container {
     position: fixed;
     z-index: 10000000000000000;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, supported by Chrome and Opera */
 }
 
 #close-twitch-sideplayer {
