@@ -42,7 +42,7 @@ body {
     margin-bottom: 13px;
     margin-left: 5%;
     cursor: pointer;
-    background: url('chrome-extension://__MSG_@@extension_id__/img/play-circle.svg');
+    background: url('../img/play-circle.svg');
 }
 
 ::-webkit-input-placeholder {

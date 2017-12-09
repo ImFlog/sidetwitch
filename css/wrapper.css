@@ -23,7 +23,7 @@
     filter: invert(1);
     cursor: pointer;
     /*TODO: change urls to be FF complant */
-    background: url('chrome-extension://__MSG_@@extension_id__/img/x-circle.svg');
+    background: url('../img/x-circle.svg');
 }
 
 #move-twitch-sideplayer {
@@ -38,5 +38,5 @@
     filter: invert(1);
     cursor: move;
     /* TODO: change urls to be FF compliant */
-    background: url('chrome-extension://__MSG_@@extension_id__/img/move.svg');
+    background: url('../img/move.svg');
 }
