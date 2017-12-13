@@ -70,44 +70,33 @@ function move_elem(e) {
     }
 }
 
-// TODO : split into multiple functions for readability
+/**
+ * Create the twitch container div with embedded twitch.
+ */
 function createContainer(channelId) {
     let node = document.createElement('div')
     node.id = containerId
 
-    let close = document.createElement('div')
-    close.style.display = 'none'
-    close.id = 'close-twitch-sideplayer'
-    close.onclick = removeContainer
+    let closeItem = createCloseItem()
+    let moveItem = createMoveItem(node)
 
-    // Drag item
-    let move = document.createElement('div')
-    move.id = 'move-twitch-sideplayer'
-    move.style.display = 'none'
-    move.onmousedown = function() {
-        drag_init(node)
-        return false
-    }
-    document.onmousemove = move_elem
-    document.onmouseup = function() {
-        selected = null
-    }
-
-    node.appendChild(close)
-    node.appendChild(move)
+    node.appendChild(closeItem)
+    node.appendChild(moveItem)
     document.body.appendChild(node)
 
     // initial position
     node.style.right = 0 + 'px'
     node.style.bottom = 0 + 'px'
 
+    // Show buttons on mouseover
     node.onmouseover = function(e) {
-        close.style.display = 'block'
-        move.style.display = 'block'
+        closeItem.style.display = 'block'
+        moveItem.style.display = 'block'
     }
+    // Hide buttons on mouseover
     node.onmouseout = function(e) {
-        close.style.display = 'none'
-        move.style.display = 'none'
+        closeItem.style.display = 'none'
+        moveItem.style.display = 'none'
     }
 
     let options = {
@@ -124,4 +113,46 @@ function createContainer(channelId) {
         player = embed.getPlayer()
         player.play()
     })
+}
+
+/**
+ * Create the close button.
+ */
+function createCloseItem() {
+    let close = document.createElement('div')
+    close.id = 'close-twitch-sideplayer'
+
+    // Custom style applied at runtime
+    let closeImg = chrome.runtime.getURL('img/x-circle.svg')
+    close.style.backgroundImage  = 'url("' + closeImg + '")'
+    close.style.display = 'none'
+
+    // Bind close event
+    close.onclick = removeContainer
+    return close
+}
+
+/**
+ * Create the dragging button.
+ */
+function createMoveItem(container) {
+    let move = document.createElement('div')
+    move.id = 'move-twitch-sideplayer'
+    
+    // Custom style applied at runtime
+    let moveImg = chrome.runtime.getURL('img/move.svg')
+    move.style.backgroundImage  = 'url("' + moveImg + '")'
+    move.style.display = 'none'
+
+    // Moving events binding
+    move.onmousedown = function() {
+        drag_init(container)
+        return false
+    }
+    document.onmousemove = move_elem
+    document.onmouseup = function() {
+        selected = null
+    }
+
+    return move
 }

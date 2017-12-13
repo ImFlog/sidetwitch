@@ -22,8 +22,6 @@
     -webkit-filter: invert(1);
     filter: invert(1);
     cursor: pointer;
-    /*TODO: change urls to be FF complant */
-    background: url('../img/x-circle.svg');
 }
 
 #move-twitch-sideplayer {
@@ -37,6 +35,4 @@
     -webkit-filter: invert(1);
     filter: invert(1);
     cursor: move;
-    /* TODO: change urls to be FF compliant */
-    background: url('../img/move.svg');
 }
