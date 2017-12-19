@@ -4,35 +4,40 @@
     "description": "Embed twitch in your browser",
     "version": "0.0.1",
     "permissions": [
-        "activeTab", "tabs"
+        "activeTab",
+        "tabs"
     ],
-
-    "content_scripts": [{
-        "matches": ["http://*/*", "https://*/*"],
-        "js": [
-            "lib/twitch-v1.js",
-            "js/wrapper.js"
-        ],
-        "run_at": "document_end",
-        "css": ["css/wrapper.css"]
-        }],
-
-        "browser_action": {
-            "default_icon": "img/favicon.png",
-            "default_title": "Twitch Sideplayer",
-            "default_popup": "html/popup.html"
-        },
-
-        "background": {
-            "scripts": ["js/background.js"]
-        },
-
-        "web_accessible_resources": [
-            "html/wrapper.html",
-            "css/wrapper.css",
-            "img/x-circle.svg",
-            "img/move.svg",
-            "img/play-button.png"
-        ],
-        "permissions": [ "*://*/*"]
-    }
+    "content_scripts": [
+        {
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ],
+            "js": [
+                "lib/twitch-v1.js",
+                "js/wrapper.js"
+            ],
+            "run_at": "document_end",
+            "css": [
+                "css/wrapper.css"
+            ]
+        }
+    ],
+    "browser_action": {
+        "default_icon": "img/favicon.png",
+        "default_title": "Twitch Sideplayer",
+        "default_popup": "html/popup.html"
+    },
+    "background": {
+        "scripts": [
+            "js/background.js"
+        ]
+    },
+    "web_accessible_resources": [
+        "html/wrapper.html",
+        "css/wrapper.css",
+        "img/x-circle.svg",
+        "img/move.svg",
+        "img/play-button.png"
+    ]
+}
