@@ -8,6 +8,7 @@ const pauseType = 'PAUSE_CHANNEL'
 const defaultWidth = '400'
 const defaultHeight = '300'
 
+let lastChannelId = null;
 var player = null
 
 // Drag
@@ -34,8 +35,9 @@ function startVideo(channelId) {
     let elem = document.getElementById(containerId)
     if (elem === null) {
         createContainer(channelId)
-    } else if (player.getChannel() != channelId) {
+    } else if (player.getChannel() !== channelId) {
         clearPage()
+        channelId = player.getChannel();
         createContainer(channelId)
     } else if (player.isPaused()) {
         player.play()

@@ -16,9 +16,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
 })
 
-// TODO : add pause message on non activated tab ?
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (currentChannel != '') {
+    if (!!currentChannel) {
         notifyContainerCreation()
     } else {
         notifyContainerDeletion()
@@ -26,7 +25,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 });
 
 chrome.tabs.onCreated.addListener(function(tab) {
-    if (currentChannel != '') {
+    if (!!currentChannel) {
         notifyContainerCreation()
     } else {
         notifyContainerDeletion()
@@ -34,7 +33,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
 });
 
 chrome.tabs.onActivated.addListener(function(tabId, changeInfo, tab) {
-    if (currentChannel != '') {
+    if (!!currentChannel) {
         notifyContainerCreation()
     } else {
         notifyContainerDeletion()
@@ -42,20 +41,26 @@ chrome.tabs.onActivated.addListener(function(tabId, changeInfo, tab) {
 });
 
 function notifyContainerCreation() {
+    // get current tab and send a message to it
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (!!tabs[0]) {
         chrome.tabs.sendMessage(
             tabs[0].id,
             {type: createType, text: currentChannel},
             () => {}
         )
+      }
     })
+    // get inactive tabs and send a message to it
     chrome.tabs.query({active: false, currentWindow: true}, function(tabs) {
         for (var i = 0; i < tabs.length; i++) {
+          if (!!tabs[i]) {
             chrome.tabs.sendMessage(
                 tabs[i].id,
                 {type: pauseType},
                 () => {}
             )
+          }
         }
     })
 }
