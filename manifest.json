@@ -34,5 +34,5 @@
             "img/move.svg",
             "img/play-button.png"
         ],
-        "permissions": [ "*://*/*", "storage"]
+        "permissions": [ "*://*/*"]
     }
