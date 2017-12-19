@@ -4,6 +4,8 @@
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
 const pauseType = 'PAUSE_CHANNEL'
+const changeHostType = 'CHANGE_HOST_CHANNEL'
+
 let currentChannel = ''
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
@@ -13,6 +15,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     } else if (message.type && (message.type === removeType)) {
         currentChannel = ''
         notifyContainerDeletion()
+    } else if (message.type && (message.type === changeHostType)) {
+        currentChannel = message.channelId
     }
 })
 
@@ -44,6 +48,7 @@ function notifyContainerCreation() {
     // get current tab and send a message to it
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       if (!!tabs[0]) {
+        console.info('We hope you\'re having a good time');
         chrome.tabs.sendMessage(
             tabs[0].id,
             {type: createType, text: currentChannel},

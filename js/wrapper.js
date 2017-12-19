@@ -4,6 +4,7 @@ const containerId = 'twitch-sideplayer-container'
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
 const pauseType = 'PAUSE_CHANNEL'
+const changeHostType = 'CHANGE_HOST_CHANNEL'
 
 const defaultWidth = '400'
 const defaultHeight = '300'
@@ -37,9 +38,8 @@ function startVideo(channelId) {
         createContainer(channelId)
     } else if (player.getChannel() !== channelId) {
         clearPage()
-        channelId = player.getChannel();
         createContainer(channelId)
-    } else if (player.isPaused()) {
+    } else if (player && player.isPaused()) {
         player.play()
     }
 }
@@ -153,6 +153,11 @@ function createContainer(channelId) {
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
         player = embed.getPlayer()
         player.play()
+    })
+    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, (res) => {
+      if (channelId !== player.getChannel()) {
+        chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() })
+      }
     })
 }
 
