@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "SideTwitch",
     "description": "Embed Twitch in your browser",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "permissions": [
         "activeTab",
         "tabs"
