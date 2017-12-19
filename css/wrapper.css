@@ -11,13 +11,11 @@
 }
 
 #close-twitch-sideplayer {
-    position: relative;
-    float: left;
-    width: 24px;
-    height: 24px;
-    top: 24px;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: 0px;
     opacity: 0.8;
-    margin-left: 10px;
     padding: 0px;
     -webkit-filter: invert(1);
     filter: invert(1);
@@ -25,13 +23,11 @@
 }
 
 #move-twitch-sideplayer {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    top: 24px;
+    position: absolute;
+    width: 20px;
+    height: 20px;
     opacity: 0.8;
-    margin-left: 34px;
-    padding-left: 0px;
+    margin-left: 14px;
     -webkit-filter: invert(1);
     filter: invert(1);
     cursor: move;

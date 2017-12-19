@@ -6,7 +6,7 @@ const removeType = 'REMOVE_CHANNEL'
 const pauseType = 'PAUSE_CHANNEL'
 
 const defaultWidth = '400'
-const defaultHeight= '300'
+const defaultHeight = '300'
 
 var player = null
 
@@ -18,7 +18,7 @@ var x_elem = 0, y_elem = 0 // Stores top, left values (edge) of the element
 // Resize
 var startXResize, startYResize, startWidthResize, startHeightResize;
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type) {
         if (message.type === createType) {
             startVideo(message.text)
@@ -34,10 +34,10 @@ function startVideo(channelId) {
     let elem = document.getElementById(containerId)
     if (elem === null) {
         createContainer(channelId)
-    } else if(player.getChannel() != channelId) {
+    } else if (player.getChannel() != channelId) {
         clearPage()
         createContainer(channelId)
-    } else if(player.isPaused()) {
+    } else if (player.isPaused()) {
         player.play()
     }
 }
@@ -53,7 +53,7 @@ function clearPage() {
 function removeContainer() {
     clearPage()
     // Send message to background to propagate the remove
-    chrome.runtime.sendMessage({type: removeType})
+    chrome.runtime.sendMessage({ type: removeType })
 }
 
 // Will be called when user starts dragging an element
@@ -69,7 +69,7 @@ function doDrag(e) {
     x_pos = document.all ? window.event.clientX : e.pageX
     y_pos = document.all ? window.event.clientY : e.pageY
     if (selected !== null) {
-    // set new position
+        // set new position
         selected.style.left = (x_pos - x_elem) + 'px'
         selected.style.top = (y_pos - y_elem) + 'px'
 
@@ -86,18 +86,18 @@ function initResize(e) {
     startHeightResize = parseInt(document.defaultView.getComputedStyle(document.getElementById(containerId)).height, 10);
     document.documentElement.addEventListener('mousemove', doResize, false);
     document.documentElement.addEventListener('mouseup', stopResize, false);
- }
+}
 
 function doResize(e) {
     let container = document.getElementById(containerId)
-    
+
     let newWidth = (startWidthResize + startXResize - e.clientX)
     let newHeight = (startHeightResize + startYResize - e.clientY)
 
     container.style.width = newWidth + 'px';
     container.style.height = newHeight + 'px';
     container.lastElementChild.width = newWidth
-    container.lastElementChild.height = newHeight 
+    container.lastElementChild.height = newHeight
 }
 
 function stopResize(e) {
@@ -128,12 +128,12 @@ function createContainer(channelId) {
     node.style.width = defaultWidth + 'px'
 
     // Show buttons on mouseover
-    node.onmouseover = function(e) {
+    node.onmouseover = function (e) {
         closeItem.style.display = 'block'
         moveItem.style.display = 'block'
     }
     // Hide buttons on mouseover
-    node.onmouseout = function(e) {
+    node.onmouseout = function (e) {
         closeItem.style.display = 'none'
         moveItem.style.display = 'none'
     }
@@ -163,7 +163,7 @@ function createCloseItem() {
 
     // Custom style applied at runtime
     let closeImg = chrome.runtime.getURL('img/x-circle.svg')
-    close.style.backgroundImage  = 'url("' + closeImg + '")'
+    close.style.backgroundImage = 'url("' + closeImg + '")'
     close.style.display = 'none'
 
     // Bind close event
@@ -177,19 +177,19 @@ function createCloseItem() {
 function createMoveItem(container) {
     let move = document.createElement('div')
     move.id = 'move-twitch-sideplayer'
-    
+
     // Custom style applied at runtime
     let moveImg = chrome.runtime.getURL('img/move.svg')
-    move.style.backgroundImage  = 'url("' + moveImg + '")'
+    move.style.backgroundImage = 'url("' + moveImg + '")'
     move.style.display = 'none'
 
     // Moving events binding
-    move.onmousedown = function() {
+    move.onmousedown = function () {
         dragInit(container)
         return false
     }
     document.onmousemove = doDrag
-    document.onmouseup = function() {
+    document.onmouseup = function () {
         selected = null
     }
     return move
