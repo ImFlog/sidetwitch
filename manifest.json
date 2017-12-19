@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
-    "name": "Twitch Sideplayer",
-    "description": "Embed twitch in your browser",
+    "name": "SideTwitch",
+    "description": "Embed Twitch in your browser",
     "version": "0.0.1",
     "permissions": [
         "activeTab",
