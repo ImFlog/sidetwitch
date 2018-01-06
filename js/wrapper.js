@@ -4,6 +4,7 @@ const containerId = 'twitch-sideplayer-container'
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
 const pauseType = 'PAUSE_CHANNEL'
+const hideType = 'HIDE_CHANNEL'
 const changeHostType = 'CHANGE_HOST_CHANNEL'
 
 const defaultWidth = '400'
@@ -23,23 +24,25 @@ var startXResize, startYResize, startWidthResize, startHeightResize;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type) {
         if (message.type === createType) {
-            startVideo(message.text)
+            startVideo(message.text, message.isHidden)
         } else if (message.type === removeType) {
             clearPage()
         } else if (message.type === pauseType) {
             player.pause()
+        } else if (message.type === hideType) {
+            togglePlayer()
         }
     }
 })
 
-function startVideo(channelId) {
+function startVideo(channelId, isHidden) {
     let elem = document.getElementById(containerId)
     if (elem === null) {
-        createContainer(channelId)
+        createContainer(channelId, isHidden)
     } else if (player.getChannel() !== channelId) {
         clearPage()
-        createContainer(channelId)
-    } else if (player && player.isPaused()) {
+        createContainer(channelId, isHidden)
+    } else if (!isHidden && player && player.isPaused()) {
         player.play()
     }
 }
@@ -50,6 +53,21 @@ function clearPage() {
         elem.parentNode.removeChild(elem)
     }
     player = null
+}
+
+function togglePlayer() {
+    let elem = document.getElementById(containerId)
+    if (elem) {
+        if (elem.style.display == 'none') {
+            // Show player
+            player.play()
+            elem.style.display = 'block'
+        } else {
+            // Hide player
+            player.pause()
+            elem.style.display = 'none'
+        }
+    }
 }
 
 function removeContainer() {
@@ -110,9 +128,12 @@ function stopResize(e) {
 /**
  * Create the twitch container div with embedded twitch.
  */
-function createContainer(channelId) {
+function createContainer(channelId, isHidden) {
     let node = document.createElement('div')
     node.id = containerId
+    if (isHidden) {
+        node.style.display = 'none'
+    }
 
     let closeItem = createCloseItem()
     let moveItem = createMoveItem(node)
@@ -155,9 +176,9 @@ function createContainer(channelId) {
         player.play()
     })
     embed.addEventListener(Twitch.Embed.VIDEO_PLAY, (res) => {
-      if (channelId !== player.getChannel()) {
-        chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() })
-      }
+        if (channelId !== player.getChannel()) {
+            chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() })
+        }
     })
 }
 

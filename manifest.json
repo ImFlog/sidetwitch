@@ -33,6 +33,14 @@
             "js/background.js"
         ]
     },
+    "commands": {
+        "toggle-display": {
+            "suggested_key": {
+                "default": "Alt+Shift+T"
+            },
+            "description": "Toggle Twitch Iframe display"
+        }
+    },
     "web_accessible_resources": [
         "html/wrapper.html",
         "css/wrapper.css",

@@ -4,11 +4,13 @@
 const createType = 'CREATE_CHANNEL'
 const removeType = 'REMOVE_CHANNEL'
 const pauseType = 'PAUSE_CHANNEL'
+const hideType = 'HIDE_CHANNEL'
 const changeHostType = 'CHANGE_HOST_CHANNEL'
 
 let currentChannel = ''
+let isHidden = false
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type && (message.type === createType)) {
         currentChannel = message.text
         notifyContainerCreation()
@@ -20,7 +22,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
 })
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (!!currentChannel) {
         notifyContainerCreation()
     } else {
@@ -28,7 +30,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     }
 });
 
-chrome.tabs.onCreated.addListener(function(tab) {
+chrome.tabs.onCreated.addListener(function (tab) {
     if (!!currentChannel) {
         notifyContainerCreation()
     } else {
@@ -36,7 +38,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
     }
 });
 
-chrome.tabs.onActivated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tab) {
     if (!!currentChannel) {
         notifyContainerCreation()
     } else {
@@ -46,47 +48,72 @@ chrome.tabs.onActivated.addListener(function(tabId, changeInfo, tab) {
 
 function notifyContainerCreation() {
     // get current tab and send a message to it
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      if (!!tabs[0]) {
-        console.info('We hope you\'re having a good time');
-        chrome.tabs.sendMessage(
-            tabs[0].id,
-            {type: createType, text: currentChannel},
-            () => {}
-        )
-      }
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        if (!!tabs[0]) {
+            chrome.tabs.sendMessage(
+                tabs[0].id,
+                { type: createType, text: currentChannel, isHidden: isHidden },
+                () => { }
+            )
+        }
     })
     // get inactive tabs and send a message to it
-    chrome.tabs.query({active: false, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
         for (var i = 0; i < tabs.length; i++) {
-          if (!!tabs[i]) {
-            chrome.tabs.sendMessage(
-                tabs[i].id,
-                {type: pauseType},
-                () => {}
-            )
-          }
+            if (!!tabs[i]) {
+                chrome.tabs.sendMessage(
+                    tabs[i].id,
+                    { type: pauseType },
+                    () => { }
+                )
+            }
         }
     })
 }
 
 function notifyContainerDeletion() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         for (var i = 0; i < tabs.length; i++) {
             chrome.tabs.sendMessage(
                 tabs[i].id,
-                {type: removeType},
-                () => {}
+                { type: removeType },
+                () => { }
             )
         }
     })
-    chrome.tabs.query({active: false, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
         for (var i = 0; i < tabs.length; i++) {
             chrome.tabs.sendMessage(
                 tabs[i].id,
-                {type: removeType},
-                () => {}
+                { type: removeType },
+                () => { }
             )
         }
     })
 }
+
+// Player hidding feature
+browser.commands.onCommand.addListener(function (command) {
+    if (command === "toggle-display") {
+        isHidden = !isHidden
+        // Send a message to every content-script asking to pause and hide.
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            for (var i = 0; i < tabs.length; i++) {
+                chrome.tabs.sendMessage(
+                    tabs[i].id,
+                    { type: hideType },
+                    () => { }
+                )
+            }
+        })
+        chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
+            for (var i = 0; i < tabs.length; i++) {
+                chrome.tabs.sendMessage(
+                    tabs[i].id,
+                    { type: hideType },
+                    () => { }
+                )
+            }
+        })
+    }
+});
