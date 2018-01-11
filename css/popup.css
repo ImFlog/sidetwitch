@@ -16,6 +16,10 @@ body {
     margin-top: 0px;
 }
 
+#title a {
+    color: black;
+}
+
 #channel-name {
     display: block;
     float: left;
