@@ -136,14 +136,12 @@ function createContainer(channelId, isHidden) {
     let closeItem = createCloseItem();
     let moveItem = createMoveItem(node);
     let resizeTopLeft = createResizeItem('resize-top-left');
-    let resizeTopRight = createResizeItem('resize-top-right');
     let resizeBottomLeft = createResizeItem('resize-bottom-left');
     let resizeBottomRight = createResizeItem('resize-bottom-right');
 
     node.appendChild(closeItem);
     node.appendChild(moveItem);
     node.appendChild(resizeTopLeft);
-    node.appendChild(resizeTopRight);
     node.appendChild(resizeBottomLeft);
     node.appendChild(resizeBottomRight);
     document.body.appendChild(node);
@@ -233,10 +231,8 @@ function createMoveItem(container) {
  */
 function createResizeItem(position) {
     let resizeItem = document.createElement('div');
-    let classList = new DOMTokenList();
-    classList.add('resize-twitch-sideplayer');
-    classList.add(position);
-    resizeItem.classList = classList;
+    let className = 'resize-twitch-sideplayer ' + position;
+    resizeItem.className = className;
 
     // Resize event binding
     resizeItem.addEventListener('mousedown', initResize, false);

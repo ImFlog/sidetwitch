@@ -37,25 +37,22 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    cursor: ew-resize;
 }
 
 .resize-top-left {
     left: 0px;
     top: 0px;
-}
-
-.resize-top-right {
-    right: 0px;
-    top: 0px;
+    cursor: nwse-resize;
 }
 
 .resize-bottom-left {
     left: 0px;
     bottom: 0px;
+    cursor: nesw-resize;
 }
 
 .resize-bottom-right {
     right: 0px;
     bottom: 0px;
+    cursor: nwse-resize;
 }
