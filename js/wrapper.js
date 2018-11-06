@@ -1,27 +1,26 @@
-'use strict'
+'use strict';
 
-const containerId = 'twitch-sideplayer-container'
-const createType = 'CREATE_CHANNEL'
-const removeType = 'REMOVE_CHANNEL'
-const pauseType = 'PAUSE_CHANNEL'
-const hideType = 'HIDE_CHANNEL'
-const changeHostType = 'CHANGE_HOST_CHANNEL'
+const containerId = 'twitch-sideplayer-container';
+const createType = 'CREATE_CHANNEL';
+const removeType = 'REMOVE_CHANNEL';
+const pauseType = 'PAUSE_CHANNEL';
+const hideType = 'HIDE_CHANNEL';
+const changeHostType = 'CHANGE_HOST_CHANNEL';
 
-const defaultWidth = '400'
-const defaultHeight = '300'
+const defaultWidth = '400';
+const defaultHeight = '300';
 
-let lastChannelId = null;
-var player = null
+let player = null;
 
 // Drag
-var selected = null // Object of the element to be moved
-var x_pos = 0, y_pos = 0 // Stores x & y coordinates of the mouse pointer
-var x_elem = 0, y_elem = 0 // Stores top, left values (edge) of the element
+let selected = null; // Object of the element to be moved
+let x_pos = 0, y_pos = 0; // Stores x & y coordinates of the mouse pointer
+let x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
 
 // Resize
-var startXResize, startYResize, startWidthResize, startHeightResize;
+let startXResize, startYResize, startWidthResize, startHeightResize;
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message) {
     if (message.type) {
         if (message.type === createType) {
             startVideo(message.text, message.isHidden)
@@ -33,14 +32,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             togglePlayer()
         }
     }
-})
+});
 
 function startVideo(channelId, isHidden) {
-    let elem = document.getElementById(containerId)
+    let elem = document.getElementById(containerId);
     if (elem === null) {
         createContainer(channelId, isHidden)
     } else if (player.getChannel() !== channelId) {
-        clearPage()
+        clearPage();
         createContainer(channelId, isHidden)
     } else if (!isHidden && player && player.isPaused()) {
         player.play()
@@ -48,7 +47,7 @@ function startVideo(channelId, isHidden) {
 }
 
 function clearPage() {
-    let elem = document.getElementById(containerId)
+    let elem = document.getElementById(containerId);
     if (elem != null) {
         elem.parentNode.removeChild(elem)
     }
@@ -56,46 +55,45 @@ function clearPage() {
 }
 
 function togglePlayer() {
-    let elem = document.getElementById(containerId)
+    let elem = document.getElementById(containerId);
     if (elem) {
-        if (elem.style.display == 'none') {
+        if (elem.style.display === 'none') {
             // Show player
-            player.play()
+            player.play();
             elem.style.display = 'block'
         } else {
             // Hide player
-            player.pause()
+            player.pause();
             elem.style.display = 'none'
         }
     }
 }
 
 function removeContainer() {
-    clearPage()
+    clearPage();
     // Send message to background to propagate the remove
-    chrome.runtime.sendMessage({ type: removeType })
+    chrome.runtime.sendMessage({ type: removeType });
 }
 
 // Will be called when user starts dragging an element
-function dragInit(elem, currentEvent) {
+function dragInit(elem) {
     // Store the object of the element which needs to be moved
-    selected = elem
-    action = currentEvent
-    x_elem = x_pos - selected.offsetLeft
-    y_elem = y_pos - selected.offsetTop
+    selected = elem;
+    x_elem = x_pos - selected.offsetLeft;
+    y_elem = y_pos - selected.offsetTop;
 }
 
 function doDrag(e) {
-    x_pos = document.all ? window.event.clientX : e.pageX
-    y_pos = document.all ? window.event.clientY : e.pageY
+    x_pos = document.all ? window.event.clientX : e.pageX;
+    y_pos = document.all ? window.event.clientY : e.pageY;
     if (selected !== null) {
         // set new position
-        selected.style.left = (x_pos - x_elem) + 'px'
-        selected.style.top = (y_pos - y_elem) + 'px'
+        selected.style.left = (x_pos - x_elem) + 'px';
+        selected.style.top = (y_pos - y_elem) + 'px';
 
         // Remove previously set right position
-        selected.style.removeProperty('right')
-        selected.style.removeProperty('bottom')
+        selected.style.removeProperty('right');
+        selected.style.removeProperty('bottom');
     }
 }
 
@@ -109,18 +107,18 @@ function initResize(e) {
 }
 
 function doResize(e) {
-    let container = document.getElementById(containerId)
+    let container = document.getElementById(containerId);
 
-    let newWidth = (startWidthResize + startXResize - e.clientX)
-    let newHeight = (startHeightResize + startYResize - e.clientY)
+    let newWidth = (startWidthResize + startXResize - e.clientX);
+    let newHeight = (startHeightResize + startYResize - e.clientY);
 
     container.style.width = newWidth + 'px';
     container.style.height = newHeight + 'px';
-    container.lastElementChild.width = newWidth
-    container.lastElementChild.height = newHeight
+    container.lastElementChild.width = newWidth;
+    container.lastElementChild.height = newHeight;
 }
 
-function stopResize(e) {
+function stopResize() {
     document.documentElement.removeEventListener('mousemove', doResize, false);
     document.documentElement.removeEventListener('mouseup', stopResize, false);
 }
@@ -129,37 +127,44 @@ function stopResize(e) {
  * Create the twitch container div with embedded twitch.
  */
 function createContainer(channelId, isHidden) {
-    let node = document.createElement('div')
-    node.id = containerId
+    let node = document.createElement('div');
+    node.id = containerId;
     if (isHidden) {
-        node.style.display = 'none'
+        node.style.display = 'none';
     }
 
-    let closeItem = createCloseItem()
-    let moveItem = createMoveItem(node)
-    let resizeItem = createResizeItem(node)
+    let closeItem = createCloseItem();
+    let moveItem = createMoveItem(node);
+    let resizeTopLeft = createResizeItem('resize-top-left');
+    let resizeTopRight = createResizeItem('resize-top-right');
+    let resizeBottomLeft = createResizeItem('resize-bottom-left');
+    let resizeBottomRight = createResizeItem('resize-bottom-right');
 
-    node.appendChild(closeItem)
-    node.appendChild(moveItem)
-    node.appendChild(resizeItem)
-    document.body.appendChild(node)
+    node.appendChild(closeItem);
+    node.appendChild(moveItem);
+    node.appendChild(resizeTopLeft);
+    node.appendChild(resizeTopRight);
+    node.appendChild(resizeBottomLeft);
+    node.appendChild(resizeBottomRight);
+    document.body.appendChild(node);
 
     // initial size and position
-    node.style.right = 0 + 'px'
-    node.style.bottom = 0 + 'px'
-    node.style.height = defaultHeight + 'px'
-    node.style.width = defaultWidth + 'px'
+    node.style.right = 0 + 'px';
+    node.style.bottom = 0 + 'px';
+    node.style.height = defaultHeight + 'px';
+    node.style.width = defaultWidth + 'px';
 
     // Show buttons on mouseover
-    node.onmouseover = function (e) {
-        closeItem.style.display = 'block'
+    node.onmouseover = function () {
+        closeItem.style.display = 'block';
         moveItem.style.display = 'block'
-    }
+    };
+    
     // Hide buttons on mouseover
-    node.onmouseout = function (e) {
-        closeItem.style.display = 'none'
-        moveItem.style.display = 'none'
-    }
+    node.onmouseout = function () {
+        closeItem.style.display = 'none';
+        moveItem.style.display = 'none';
+    };
 
     let options = {
         width: defaultWidth,
@@ -172,65 +177,68 @@ function createContainer(channelId, isHidden) {
 
     let embed = new Twitch.Embed(containerId, options);
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
-        player = embed.getPlayer()
-        player.play()
-    })
-    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, (res) => {
+        player = embed.getPlayer();
+        player.play();
+    });
+    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
         if (channelId !== player.getChannel()) {
-            chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() })
+            chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() });
         }
-    })
+    });
 }
 
 /**
  * Create the close button.
  */
 function createCloseItem() {
-    let close = document.createElement('div')
-    close.id = 'close-twitch-sideplayer'
+    let close = document.createElement('div');
+    close.id = 'close-twitch-sideplayer';
 
     // Custom style applied at runtime
-    let closeImg = chrome.runtime.getURL('img/x-circle.svg')
-    close.style.backgroundImage = 'url("' + closeImg + '")'
-    close.style.display = 'none'
+    let closeImg = chrome.runtime.getURL('img/x-circle.svg');
+    close.style.backgroundImage = 'url("' + closeImg + '")';
+    close.style.display = 'none';
 
     // Bind close event
-    close.onclick = removeContainer
-    return close
+    close.onclick = removeContainer;
+    return close;
 }
 
 /**
  * Create the dragging button.
  */
 function createMoveItem(container) {
-    let move = document.createElement('div')
-    move.id = 'move-twitch-sideplayer'
+    let move = document.createElement('div');
+    move.id = 'move-twitch-sideplayer';
 
     // Custom style applied at runtime
-    let moveImg = chrome.runtime.getURL('img/move.svg')
-    move.style.backgroundImage = 'url("' + moveImg + '")'
-    move.style.display = 'none'
+    let moveImg = chrome.runtime.getURL('img/move.svg');
+    move.style.backgroundImage = 'url("' + moveImg + '")';
+    move.style.display = 'none';
 
     // Moving events binding
     move.onmousedown = function () {
-        dragInit(container)
-        return false
-    }
-    document.onmousemove = doDrag
+        dragInit(container);
+        return false;
+    };
+    document.onmousemove = doDrag;
     document.onmouseup = function () {
-        selected = null
-    }
-    return move
+        selected = null;
+    };
+    return move;
 }
 
 /**
  * Create the resizing div.
  */
-function createResizeItem(container) {
-    let resizeItem = document.createElement('div')
-    resizeItem.id = 'resize-twitch-sideplayer'
+function createResizeItem(position) {
+    let resizeItem = document.createElement('div');
+    let classList = new DOMTokenList();
+    classList.add('resize-twitch-sideplayer');
+    classList.add(position);
+    resizeItem.classList = classList;
 
     // Resize event binding
     resizeItem.addEventListener('mousedown', initResize, false);
-    return resizeItem
+    return resizeItem;
 }

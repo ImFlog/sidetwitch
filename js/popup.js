@@ -7,7 +7,7 @@ document.getElementById('start-stream').addEventListener(
 
 document.getElementById("channel-name").addEventListener("keypress",
     function(event) {
-        if (event.which == 13 || event.keyCode == 13) {
+        if (event.which === 13 || event.keyCode === 13) {
             sendStartMessage()
         }
     }, false)

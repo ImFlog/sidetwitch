@@ -1,28 +1,29 @@
-'use strict'
+'use strict';
 
 // TODO : This is duplicated ...
-const createType = 'CREATE_CHANNEL'
-const removeType = 'REMOVE_CHANNEL'
-const pauseType = 'PAUSE_CHANNEL'
-const hideType = 'HIDE_CHANNEL'
-const changeHostType = 'CHANGE_HOST_CHANNEL'
+const createType = 'CREATE_CHANNEL';
+const removeType = 'REMOVE_CHANNEL';
+const pauseType = 'PAUSE_CHANNEL';
+const hideType = 'HIDE_CHANNEL';
+const changeHostType = 'CHANGE_HOST_CHANNEL';
 
-let currentChannel = ''
-let isHidden = false
+let currentChannel = '';
+let isHidden = false;
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+
+chrome.runtime.onMessage.addListener(function (message) {
     if (message.type && (message.type === createType)) {
-        currentChannel = message.text
+        currentChannel = message.text;
         notifyContainerCreation()
     } else if (message.type && (message.type === removeType)) {
-        currentChannel = ''
+        currentChannel = '';
         notifyContainerDeletion()
     } else if (message.type && (message.type === changeHostType)) {
         currentChannel = message.channelId
     }
-})
+});
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(function () {
     if (!!currentChannel) {
         notifyContainerCreation()
     } else {
@@ -30,7 +31,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     }
 });
 
-chrome.tabs.onCreated.addListener(function (tab) {
+chrome.tabs.onCreated.addListener(function () {
     if (!!currentChannel) {
         notifyContainerCreation()
     } else {
@@ -38,7 +39,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     }
 });
 
-chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tab) {
+chrome.tabs.onActivated.addListener(function () {
     if (!!currentChannel) {
         notifyContainerCreation()
     } else {
@@ -56,10 +57,10 @@ function notifyContainerCreation() {
                 () => { }
             )
         }
-    })
+    });
     // get inactive tabs and send a message to it
     chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
-        for (var i = 0; i < tabs.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
             if (!!tabs[i]) {
                 chrome.tabs.sendMessage(
                     tabs[i].id,
@@ -73,16 +74,16 @@ function notifyContainerCreation() {
 
 function notifyContainerDeletion() {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        for (var i = 0; i < tabs.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
             chrome.tabs.sendMessage(
                 tabs[i].id,
                 { type: removeType },
                 () => { }
             )
         }
-    })
+    });
     chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
-        for (var i = 0; i < tabs.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
             chrome.tabs.sendMessage(
                 tabs[i].id,
                 { type: removeType },
@@ -93,21 +94,21 @@ function notifyContainerDeletion() {
 }
 
 // Player hidding feature
-browser.commands.onCommand.addListener(function (command) {
+chrome.commands.onCommand.addListener(function (command) {
     if (command === "toggle-display") {
         isHidden = !isHidden
         // Send a message to every content-script asking to pause and hide.
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            for (var i = 0; i < tabs.length; i++) {
+            for (let i = 0; i < tabs.length; i++) {
                 chrome.tabs.sendMessage(
                     tabs[i].id,
                     { type: hideType },
                     () => { }
                 )
             }
-        })
+        });
         chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
-            for (var i = 0; i < tabs.length; i++) {
+            for (let i = 0; i < tabs.length; i++) {
                 chrome.tabs.sendMessage(
                     tabs[i].id,
                     { type: hideType },
