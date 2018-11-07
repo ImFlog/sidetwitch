@@ -10,6 +10,9 @@ const changeHostType = 'CHANGE_HOST_CHANNEL';
 const defaultWidth = '400';
 const defaultHeight = '300';
 
+const MAX_WIDTH = '1200';
+const MAX_HEIGHT = '900';
+
 let player = null;
 
 // Drag
@@ -97,21 +100,45 @@ function doDrag(e) {
     }
 }
 
-function initResize(e) {
-    startXResize = e.clientX;
-    startYResize = e.clientY;
+function initResize() {
     startWidthResize = parseInt(document.defaultView.getComputedStyle(document.getElementById(containerId)).width, 10);
     startHeightResize = parseInt(document.defaultView.getComputedStyle(document.getElementById(containerId)).height, 10);
-    document.documentElement.addEventListener('mousemove', doResize, false);
-    document.documentElement.addEventListener('mouseup', stopResize, false);
+}
+
+function defineResizingHandling(resizeItem) {
+    resizeItem.addEventListener('mousedown', (e) => {
+        startXResize = e.clientX;
+        startYResize = e.clientY;
+        initResize();
+        /*document.documentElement.addEventListener('mousemove', doResize, false);
+        document.documentElement.addEventListener('mouseup', stopResize, false);*/
+        document.getElementById(containerId).addEventListener('mousemove', (e) => {
+            console.log('TARGET', e.target);
+            doResize(e);
+        }, false);
+        document.getElementById(containerId).addEventListener('mouseup', stopResize, false);
+    });
 }
 
 function doResize(e) {
     let container = document.getElementById(containerId);
 
-    let newWidth = (startWidthResize + startXResize - e.clientX);
-    let newHeight = (startHeightResize + startYResize - e.clientY);
 
+    let newWidth = startWidthResize + (startXResize - e.clientX);
+    let newHeight = startHeightResize + (startYResize - e.clientY);
+
+    // we cap the width and the height
+    if (newWidth < parseInt(defaultWidth, 10)) {
+        newWidth = parseInt(defaultWidth, 10);
+    } else if (newWidth > MAX_WIDTH) {
+        newWidth = MAX_WIDTH;
+    }
+
+    if (newHeight < parseInt(defaultHeight, 10)) {
+        newHeight = parseInt(defaultHeight, 10);
+    } else if (newHeight > MAX_HEIGHT) {
+        newHeight = MAX_HEIGHT;
+    }
     container.style.width = newWidth + 'px';
     container.style.height = newHeight + 'px';
     container.lastElementChild.width = newWidth;
@@ -119,8 +146,10 @@ function doResize(e) {
 }
 
 function stopResize() {
-    document.documentElement.removeEventListener('mousemove', doResize, false);
-    document.documentElement.removeEventListener('mouseup', stopResize, false);
+    /*document.documentElement.removeEventListener('mousemove', doResize, false);
+    document.documentElement.removeEventListener('mouseup', stopResize, false);*/
+    document.getElementById(containerId).removeEventListener('mousemove', doResize, false);
+    document.getElementById(containerId).removeEventListener('mouseup', stopResize, false);
 }
 
 /**
@@ -151,6 +180,15 @@ function createContainer(channelId, isHidden) {
     node.style.bottom = 0 + 'px';
     node.style.height = defaultHeight + 'px';
     node.style.width = defaultWidth + 'px';
+
+
+    // Resize event binding
+    initResize();
+
+    defineResizingHandling(resizeTopLeft);
+    defineResizingHandling(resizeBottomLeft);
+    defineResizingHandling(resizeBottomRight);
+
 
     // Show buttons on mouseover
     node.onmouseover = function () {
@@ -233,8 +271,5 @@ function createResizeItem(position) {
     let resizeItem = document.createElement('div');
     let className = 'resize-twitch-sideplayer ' + position;
     resizeItem.className = className;
-
-    // Resize event binding
-    resizeItem.addEventListener('mousedown', initResize, false);
     return resizeItem;
 }
