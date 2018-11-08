@@ -11,8 +11,16 @@ const changeHostType = 'CHANGE_HOST_CHANNEL';
 const defaultWidth = '400';
 const defaultHeight = '300';
 
-const MAX_WIDTH = '1200';
-const MAX_HEIGHT = '900';
+function PlayerInfos () {
+    return {
+        x: 0,
+        y: 0,
+        width: defaultWidth,
+        height: defaultHeight
+    };
+}
+
+let playerInfos;
 
 let player = null;
 
@@ -22,7 +30,7 @@ let x_pos = 0, y_pos = 0; // Stores x & y coordinates of the mouse pointer
 let x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
 
 // Resize
-let startXResize, startYResize, startWidthResize, startHeightResize;
+let startWidthResize, startHeightResize;
 
 chrome.runtime.onMessage.addListener(function (message) {
     if (message.type) {
@@ -88,6 +96,7 @@ function dragInit(elem) {
 }
 
 function doDrag(e) {
+
     x_pos = document.all ? window.event.clientX : e.pageX;
     y_pos = document.all ? window.event.clientY : e.pageY;
     if (selected !== null) {
@@ -99,6 +108,8 @@ function doDrag(e) {
         selected.style.removeProperty('right');
         selected.style.removeProperty('bottom');
     }
+    playerInfos.x = x_pos;
+    playerInfos.y = y_pos;
 }
 
 function initResize() {
@@ -112,6 +123,9 @@ function initResize() {
 function createContainer(channelId, isHidden) {
     let node = document.createElement('div');
     node.id = containerId;
+
+    playerInfos = playerInfos || new PlayerInfos();
+
     if (isHidden) {
         node.style.display = 'none';
     }
@@ -135,10 +149,11 @@ function createContainer(channelId, isHidden) {
     document.body.appendChild(node);
 
     // initial size and position
-    node.style.right = 0 + 'px';
-    node.style.bottom = 0 + 'px';
-    node.style.height = defaultHeight + 'px';
-    node.style.width = defaultWidth + 'px';
+    console.info('player infos', playerInfos);
+    node.style.right = playerInfos.x + 'px';
+    node.style.bottom = playerInfos.y + 'px';
+    node.style.height = playerInfos.height + 'px';
+    node.style.width = playerInfos.width + 'px';
 
 
     // Resize event binding
@@ -205,9 +220,11 @@ function makeResizableDiv(div) {
             originalMouseY = e.pageY;
 
             let resize = (e) => {
+                let width, height;
+
                 if (currentResizer.classList.contains('resize-bottom-right')) {
-                    const width = originalWidth + (e.pageX - originalMouseX);
-                    const height = originalHeight + (e.pageY - originalMouseY);
+                    width = originalWidth + (e.pageX - originalMouseX);
+                    height = originalHeight + (e.pageY - originalMouseY);
 
                     // capping
                     if (width > defaultWidth) {
@@ -220,8 +237,8 @@ function makeResizableDiv(div) {
                     }
                 }
                 else if (currentResizer.classList.contains('resize-bottom-left')) {
-                    const height = originalHeight + (e.pageY - originalMouseY)
-                    const width = originalWidth - (e.pageX - originalMouseX)
+                    height = originalHeight + (e.pageY - originalMouseY)
+                    width = originalWidth - (e.pageX - originalMouseX)
                     if (height > defaultHeight) {
                         element.style.height = height + 'px';
                         element.lastElementChild.height = height;
@@ -233,8 +250,8 @@ function makeResizableDiv(div) {
                     }
                 }
                 else if (currentResizer.classList.contains('resize-top-left')) {
-                    const width = originalWidth - (e.pageX - originalMouseX)
-                    const height = originalHeight - (e.pageY - originalMouseY)
+                    width = originalWidth - (e.pageX - originalMouseX)
+                    height = originalHeight - (e.pageY - originalMouseY)
                     if (width > defaultWidth) {
                         element.style.width = width + 'px';
                         element.lastElementChild.width = width;
@@ -246,6 +263,8 @@ function makeResizableDiv(div) {
                         element.style.top = original_y + (e.pageY - originalMouseY) + 'px'
                     }
                 }
+                playerInfos.width = width;
+                playerInfos.height = height;
             };
 
             let stopResize = () => {
