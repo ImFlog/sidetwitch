@@ -37,13 +37,13 @@ chrome.runtime.onMessage.addListener(function (message) {
     if (message.type) {
         if (message.type === createType) {
             playerInfos = playerInfos || message.playerInfos;
-            startVideo(message.text, message.isHidden)
+            startVideo(message.text, message.isHidden);
         } else if (message.type === removeType) {
-            clearPage()
+            clearPage();
         } else if (message.type === pauseType) {
-            player.pause()
+            player.pause();
         } else if (message.type === hideType) {
-            togglePlayer()
+            togglePlayer();
         } else if (message.type === updatePlayerInfosType) {
             playerInfos = message.playerInfos;
             updatePlayerPositionAndDimensions();
@@ -66,9 +66,10 @@ function startVideo(channelId, isHidden) {
 function clearPage() {
     let elem = document.getElementById(containerId);
     if (elem != null) {
-        elem.parentNode.removeChild(elem)
+        elem.parentNode.removeChild(elem);
     }
-    player = null
+    player = null;
+    playerInfos = null;
 }
 
 function togglePlayer() {
@@ -110,15 +111,15 @@ function updatePlayerInfos() {
 function updatePlayerPositionAndDimensions() {
     let container = document.getElementById(containerId);
 
-    container.style.width = playerInfos.width + 'px';
-    container.lastElementChild.width = playerInfos.width;
-    container.style.left = playerInfos.x + 'px';
+    if (!!container) {
+        container.style.width = playerInfos.width + 'px';
+        container.lastElementChild.width = playerInfos.width;
+        container.style.left = playerInfos.x + 'px';
 
-    container.style.height = playerInfos.height + 'px';
-    container.lastElementChild.height = playerInfos.height;
-    container.style.top = playerInfos.y + 'px';
-
-
+        container.style.height = playerInfos.height + 'px';
+        container.lastElementChild.height = playerInfos.height;
+        container.style.top = playerInfos.y + 'px';
+    }
 }
 
 // Will be called when user starts dragging an element
@@ -156,8 +157,6 @@ function createContainer(channelId, isHidden) {
     let node = document.createElement('div');
     node.id = containerId;
 
-    playerInfos = playerInfos || new PlayerInfos();
-
     if (isHidden) {
         node.style.display = 'none';
     }
@@ -181,15 +180,19 @@ function createContainer(channelId, isHidden) {
     document.body.appendChild(node);
 
     // initial size and position
-    node.style.right = playerInfos.x + 'px';
-    node.style.bottom = playerInfos.y + 'px';
-    node.style.height = playerInfos.height + 'px';
-    node.style.width = playerInfos.width + 'px';
-
+    if (!playerInfos) {
+        playerInfos = new PlayerInfos();
+        node.style.right = playerInfos.x + 'px';
+        node.style.bottom = playerInfos.y + 'px';
+        node.style.height = playerInfos.height + 'px';
+        node.style.width = playerInfos.width + 'px';
+    } else {
+        updatePlayerPositionAndDimensions();
+    }
 
     // Resize event binding
     initResize();
-    makeResizableDiv(containerId);
+    makeResizableDiv();
 
     // Show buttons on mouseover
     node.onmouseover = function () {
@@ -204,15 +207,13 @@ function createContainer(channelId, isHidden) {
     };
 
     let options = {
-        width: defaultWidth,
-        height: defaultHeight,
+        width: playerInfos.width,
+        height: playerInfos.height,
         channel: channelId,
         allowfullscreen: false,
         layout: 'video', // Add chat ?
         theme: 'dark',
     };
-
-    console.info('creation - player infos', playerInfos);
 
     let embed = new Twitch.Embed(containerId, options);
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
@@ -228,10 +229,10 @@ function createContainer(channelId, isHidden) {
 /*
 * Code from https://medium.com/the-z/making-a-resizable-div-in-js-is-not-easy-as-you-think-bda19a1bc53d
 */
-function makeResizableDiv(div) {
+function makeResizableDiv() {
     
     // get the div
-    const element = document.getElementById(div);
+    const container = document.getElementById(containerId);
     // get all the resizers
     const resizers = document.querySelectorAll('.resize-twitch-sideplayer');
     let originalWidth = 0;
@@ -245,10 +246,10 @@ function makeResizableDiv(div) {
         const currentResizer = resizers[i];
         currentResizer.addEventListener('mousedown', (e) => {
             e.preventDefault()
-            originalWidth = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-            originalHeight = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-            original_x = element.getBoundingClientRect().left;
-            original_y = element.getBoundingClientRect().top;
+            originalWidth = parseFloat(getComputedStyle(container, null).getPropertyValue('width').replace('px', ''));
+            originalHeight = parseFloat(getComputedStyle(container, null).getPropertyValue('height').replace('px', ''));
+            original_x = container.getBoundingClientRect().left;
+            original_y = container.getBoundingClientRect().top;
             originalMouseX = e.pageX;
             originalMouseY = e.pageY;
 
@@ -261,39 +262,39 @@ function makeResizableDiv(div) {
 
                     // capping
                     if (width > defaultWidth) {
-                        element.style.width = width + 'px';
-                        element.lastElementChild.width = width;
+                        container.style.width = width + 'px';
+                        container.lastElementChild.width = width;
                     }
                     if (height > defaultHeight) {
-                        element.style.height = height + 'px';
-                        element.lastElementChild.height = height;
+                        container.style.height = height + 'px';
+                        container.lastElementChild.height = height;
                     }
                 }
                 else if (currentResizer.classList.contains('resize-bottom-left')) {
                     height = originalHeight + (e.pageY - originalMouseY)
                     width = originalWidth - (e.pageX - originalMouseX)
                     if (height > defaultHeight) {
-                        element.style.height = height + 'px';
-                        element.lastElementChild.height = height;
+                        container.style.height = height + 'px';
+                        container.lastElementChild.height = height;
                     }
                     if (width > defaultWidth) {
-                        element.style.width = width + 'px';
-                        element.lastElementChild.width = width;
-                        element.style.left = original_x + (e.pageX - originalMouseX) + 'px';
+                        container.style.width = width + 'px';
+                        container.lastElementChild.width = width;
+                        container.style.left = original_x + (e.pageX - originalMouseX) + 'px';
                     }
                 }
                 else if (currentResizer.classList.contains('resize-top-left')) {
                     width = originalWidth - (e.pageX - originalMouseX)
                     height = originalHeight - (e.pageY - originalMouseY)
                     if (width > defaultWidth) {
-                        element.style.width = width + 'px';
-                        element.lastElementChild.width = width;
-                        element.style.left = original_x + (e.pageX - originalMouseX) + 'px';
+                        container.style.width = width + 'px';
+                        container.lastElementChild.width = width;
+                        container.style.left = original_x + (e.pageX - originalMouseX) + 'px';
                     }
                     if (height > defaultHeight) {
-                        element.style.height = height + 'px';
-                        element.lastElementChild.height = height;
-                        element.style.top = original_y + (e.pageY - originalMouseY) + 'px'
+                        container.style.height = height + 'px';
+                        container.lastElementChild.height = height;
+                        container.style.top = original_y + (e.pageY - originalMouseY) + 'px'
                     }
                 }
             };

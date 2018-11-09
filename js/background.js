@@ -14,17 +14,16 @@ let playerInfos;
 
 
 chrome.runtime.onMessage.addListener(function (message) {
-    console.info('RECEPTION MESSAGE', message);
     if (message.type && (message.type === createType)) {
         currentChannel = message.text;
         notifyContainerCreation()
     } else if (message.type && (message.type === removeType)) {
         currentChannel = '';
+        playerInfos = null;
         notifyContainerDeletion()
     } else if (message.type && (message.type === changeHostType)) {
         currentChannel = message.channelId
     } else if (message.type && (message.type === updatePlayerInfosType)) {
-        console.info('RÉCEPTION D UN MESSAGE D UPDATE');
         notifyContainerInfos(message.playerInfos);
     }
 });
@@ -82,7 +81,6 @@ function notifyContainerInfos(infos) {
     playerInfos = infos;
     chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
         for (let i = 0; i < tabs.length; i++) {
-            console.info('ENVOI D UN MESSAGE D UPDATE');
             chrome.tabs.sendMessage(
                 tabs[i].id,
                 { type: updatePlayerInfosType, playerInfos },
