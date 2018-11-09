@@ -103,7 +103,6 @@ function updatePlayerInfos() {
         playerInfos.x = clientRect.left;
         playerInfos.y = clientRect.top;
 
-        console.info('sending player infos', playerInfos);
         chrome.runtime.sendMessage({ type: updatePlayerInfosType, playerInfos });
     }
 }
@@ -220,6 +219,7 @@ function createContainer(channelId, isHidden) {
         player = embed.getPlayer();
         player.play();
     });
+
     embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
         if (channelId !== player.getChannel()) {
             chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() });
