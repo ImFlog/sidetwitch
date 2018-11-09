@@ -7,6 +7,7 @@ const removeType = 'REMOVE_CHANNEL';
 const pauseType = 'PAUSE_CHANNEL';
 const hideType = 'HIDE_CHANNEL';
 const changeHostType = 'CHANGE_HOST_CHANNEL';
+const updatePlayerInfosType = 'UPDATE_PLAYER_INFOS';
 
 const defaultWidth = '400';
 const defaultHeight = '300';
@@ -35,6 +36,7 @@ let startWidthResize, startHeightResize;
 chrome.runtime.onMessage.addListener(function (message) {
     if (message.type) {
         if (message.type === createType) {
+            playerInfos = playerInfos || message.playerInfos;
             startVideo(message.text, message.isHidden)
         } else if (message.type === removeType) {
             clearPage()
@@ -42,6 +44,9 @@ chrome.runtime.onMessage.addListener(function (message) {
             player.pause()
         } else if (message.type === hideType) {
             togglePlayer()
+        } else if (message.type === updatePlayerInfosType) {
+            playerInfos = message.playerInfos;
+            updatePlayerPositionAndDimensions();
         }
     }
 });
@@ -87,6 +92,35 @@ function removeContainer() {
     chrome.runtime.sendMessage({ type: removeType });
 }
 
+function updatePlayerInfos() {
+    let clientRect;
+    let container = document.getElementById(containerId);
+    if (!!container) {
+        clientRect = container.getBoundingClientRect();
+        playerInfos.width = clientRect.width;
+        playerInfos.height = clientRect.height;
+        playerInfos.x = clientRect.left;
+        playerInfos.y = clientRect.top;
+
+        console.info('sending player infos', playerInfos);
+        chrome.runtime.sendMessage({ type: updatePlayerInfosType, playerInfos });
+    }
+}
+
+function updatePlayerPositionAndDimensions() {
+    let container = document.getElementById(containerId);
+
+    container.style.width = playerInfos.width + 'px';
+    container.lastElementChild.width = playerInfos.width;
+    container.style.left = playerInfos.x + 'px';
+
+    container.style.height = playerInfos.height + 'px';
+    container.lastElementChild.height = playerInfos.height;
+    container.style.top = playerInfos.y + 'px';
+
+
+}
+
 // Will be called when user starts dragging an element
 function dragInit(elem) {
     // Store the object of the element which needs to be moved
@@ -108,8 +142,6 @@ function doDrag(e) {
         selected.style.removeProperty('right');
         selected.style.removeProperty('bottom');
     }
-    playerInfos.x = x_pos;
-    playerInfos.y = y_pos;
 }
 
 function initResize() {
@@ -149,7 +181,6 @@ function createContainer(channelId, isHidden) {
     document.body.appendChild(node);
 
     // initial size and position
-    console.info('player infos', playerInfos);
     node.style.right = playerInfos.x + 'px';
     node.style.bottom = playerInfos.y + 'px';
     node.style.height = playerInfos.height + 'px';
@@ -180,6 +211,8 @@ function createContainer(channelId, isHidden) {
         layout: 'video', // Add chat ?
         theme: 'dark',
     };
+
+    console.info('creation - player infos', playerInfos);
 
     let embed = new Twitch.Embed(containerId, options);
     embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
@@ -263,12 +296,11 @@ function makeResizableDiv(div) {
                         element.style.top = original_y + (e.pageY - originalMouseY) + 'px'
                     }
                 }
-                playerInfos.width = width;
-                playerInfos.height = height;
             };
 
             let stopResize = () => {
                 window.removeEventListener('mousemove', resize);
+                updatePlayerInfos();
             };
 
             window.addEventListener('mousemove', resize);
@@ -316,6 +348,7 @@ function createMoveItem(container) {
     document.onmousemove = doDrag;
     document.onmouseup = function () {
         selected = null;
+        updatePlayerInfos();
     };
     return move;
 }

@@ -17,3 +17,4 @@ function sendStartMessage() {
 	chrome.runtime.sendMessage({type: createType, text: element.value});
     window.close();
 }
+

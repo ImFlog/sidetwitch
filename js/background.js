@@ -6,12 +6,15 @@ const removeType = 'REMOVE_CHANNEL';
 const pauseType = 'PAUSE_CHANNEL';
 const hideType = 'HIDE_CHANNEL';
 const changeHostType = 'CHANGE_HOST_CHANNEL';
+const updatePlayerInfosType = 'UPDATE_PLAYER_INFOS';
 
 let currentChannel = '';
 let isHidden = false;
+let playerInfos;
 
 
 chrome.runtime.onMessage.addListener(function (message) {
+    console.info('RECEPTION MESSAGE', message);
     if (message.type && (message.type === createType)) {
         currentChannel = message.text;
         notifyContainerCreation()
@@ -20,6 +23,9 @@ chrome.runtime.onMessage.addListener(function (message) {
         notifyContainerDeletion()
     } else if (message.type && (message.type === changeHostType)) {
         currentChannel = message.channelId
+    } else if (message.type && (message.type === updatePlayerInfosType)) {
+        console.info('RÉCEPTION D UN MESSAGE D UPDATE');
+        notifyContainerInfos(message.playerInfos);
     }
 });
 
@@ -53,7 +59,7 @@ function notifyContainerCreation() {
         if (!!tabs[0]) {
             chrome.tabs.sendMessage(
                 tabs[0].id,
-                { type: createType, text: currentChannel, isHidden: isHidden },
+                { type: createType, text: currentChannel, isHidden: isHidden, playerInfos },
                 () => { }
             )
         }
@@ -70,6 +76,20 @@ function notifyContainerCreation() {
             }
         }
     })
+}
+
+function notifyContainerInfos(infos) {
+    playerInfos = infos;
+    chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
+        for (let i = 0; i < tabs.length; i++) {
+            console.info('ENVOI D UN MESSAGE D UPDATE');
+            chrome.tabs.sendMessage(
+                tabs[i].id,
+                { type: updatePlayerInfosType, playerInfos },
+                () => { }
+            )
+        }
+    });
 }
 
 function notifyContainerDeletion() {
@@ -90,7 +110,7 @@ function notifyContainerDeletion() {
                 () => { }
             )
         }
-    })
+    });
 }
 
 // Player hidding feature
