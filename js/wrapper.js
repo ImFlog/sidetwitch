@@ -1,6 +1,7 @@
 'use strict';
 
 const containerId = 'twitch-sideplayer-container';
+const topLayerId = 'top-layer';
 const createType = 'CREATE_CHANNEL';
 const removeType = 'REMOVE_CHANNEL';
 const pauseType = 'PAUSE_CHANNEL';
@@ -9,6 +10,9 @@ const changeHostType = 'CHANGE_HOST_CHANNEL';
 
 const defaultWidth = '400';
 const defaultHeight = '300';
+
+const MAX_WIDTH = '1200';
+const MAX_HEIGHT = '900';
 
 let player = null;
 
@@ -97,30 +101,9 @@ function doDrag(e) {
     }
 }
 
-function initResize(e) {
-    startXResize = e.clientX;
-    startYResize = e.clientY;
+function initResize() {
     startWidthResize = parseInt(document.defaultView.getComputedStyle(document.getElementById(containerId)).width, 10);
     startHeightResize = parseInt(document.defaultView.getComputedStyle(document.getElementById(containerId)).height, 10);
-    document.documentElement.addEventListener('mousemove', doResize, false);
-    document.documentElement.addEventListener('mouseup', stopResize, false);
-}
-
-function doResize(e) {
-    let container = document.getElementById(containerId);
-
-    let newWidth = (startWidthResize + startXResize - e.clientX);
-    let newHeight = (startHeightResize + startYResize - e.clientY);
-
-    container.style.width = newWidth + 'px';
-    container.style.height = newHeight + 'px';
-    container.lastElementChild.width = newWidth;
-    container.lastElementChild.height = newHeight;
-}
-
-function stopResize() {
-    document.documentElement.removeEventListener('mousemove', doResize, false);
-    document.documentElement.removeEventListener('mouseup', stopResize, false);
 }
 
 /**
@@ -133,17 +116,22 @@ function createContainer(channelId, isHidden) {
         node.style.display = 'none';
     }
 
+    let topLayer = document.createElement('div');
+    topLayer.id = topLayerId;
+
+    node.appendChild(topLayer);
+
     let closeItem = createCloseItem();
     let moveItem = createMoveItem(node);
     let resizeTopLeft = createResizeItem('resize-top-left');
     let resizeBottomLeft = createResizeItem('resize-bottom-left');
     let resizeBottomRight = createResizeItem('resize-bottom-right');
 
-    node.appendChild(closeItem);
-    node.appendChild(moveItem);
-    node.appendChild(resizeTopLeft);
-    node.appendChild(resizeBottomLeft);
-    node.appendChild(resizeBottomRight);
+    topLayer.appendChild(closeItem);
+    topLayer.appendChild(moveItem);
+    topLayer.appendChild(resizeTopLeft);
+    topLayer.appendChild(resizeBottomLeft);
+    topLayer.appendChild(resizeBottomRight);
     document.body.appendChild(node);
 
     // initial size and position
@@ -151,6 +139,11 @@ function createContainer(channelId, isHidden) {
     node.style.bottom = 0 + 'px';
     node.style.height = defaultHeight + 'px';
     node.style.width = defaultWidth + 'px';
+
+
+    // Resize event binding
+    initResize();
+    makeResizableDiv(containerId);
 
     // Show buttons on mouseover
     node.onmouseover = function () {
@@ -184,6 +177,88 @@ function createContainer(channelId, isHidden) {
         }
     });
 }
+/*
+* Code from https://medium.com/the-z/making-a-resizable-div-in-js-is-not-easy-as-you-think-bda19a1bc53d
+*/
+function makeResizableDiv(div) {
+    
+    // get the div
+    const element = document.getElementById(div);
+    // get all the resizers
+    const resizers = document.querySelectorAll('.resize-twitch-sideplayer');
+    let originalWidth = 0;
+    let originalHeight = 0;
+    let original_x = 0;
+    let original_y = 0;
+    let originalMouseX = 0;
+    let originalMouseY = 0;
+
+    for (let i = 0;i < resizers.length; i++) {
+        const currentResizer = resizers[i];
+        currentResizer.addEventListener('mousedown', (e) => {
+            e.preventDefault()
+            originalWidth = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
+            originalHeight = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
+            original_x = element.getBoundingClientRect().left;
+            original_y = element.getBoundingClientRect().top;
+            originalMouseX = e.pageX;
+            originalMouseY = e.pageY;
+
+            let resize = (e) => {
+                if (currentResizer.classList.contains('resize-bottom-right')) {
+                    const width = originalWidth + (e.pageX - originalMouseX);
+                    const height = originalHeight + (e.pageY - originalMouseY);
+
+                    // capping
+                    if (width > defaultWidth) {
+                        element.style.width = width + 'px';
+                        element.lastElementChild.width = width;
+                    }
+                    if (height > defaultHeight) {
+                        element.style.height = height + 'px';
+                        element.lastElementChild.height = height;
+                    }
+                }
+                else if (currentResizer.classList.contains('resize-bottom-left')) {
+                    const height = originalHeight + (e.pageY - originalMouseY)
+                    const width = originalWidth - (e.pageX - originalMouseX)
+                    if (height > defaultHeight) {
+                        element.style.height = height + 'px';
+                        element.lastElementChild.height = height;
+                    }
+                    if (width > defaultWidth) {
+                        element.style.width = width + 'px';
+                        element.lastElementChild.width = width;
+                        element.style.left = original_x + (e.pageX - originalMouseX) + 'px';
+                    }
+                }
+                else if (currentResizer.classList.contains('resize-top-left')) {
+                    const width = originalWidth - (e.pageX - originalMouseX)
+                    const height = originalHeight - (e.pageY - originalMouseY)
+                    if (width > defaultWidth) {
+                        element.style.width = width + 'px';
+                        element.lastElementChild.width = width;
+                        element.style.left = original_x + (e.pageX - originalMouseX) + 'px';
+                    }
+                    if (height > defaultHeight) {
+                        element.style.height = height + 'px';
+                        element.lastElementChild.height = height;
+                        element.style.top = original_y + (e.pageY - originalMouseY) + 'px'
+                    }
+                }
+            };
+
+            let stopResize = () => {
+                window.removeEventListener('mousemove', resize);
+            };
+
+            window.addEventListener('mousemove', resize);
+            window.addEventListener('mouseup', stopResize);
+        })
+        
+    }
+}
+
 
 /**
  * Create the close button.
@@ -233,8 +308,5 @@ function createResizeItem(position) {
     let resizeItem = document.createElement('div');
     let className = 'resize-twitch-sideplayer ' + position;
     resizeItem.className = className;
-
-    // Resize event binding
-    resizeItem.addEventListener('mousedown', initResize, false);
     return resizeItem;
 }
