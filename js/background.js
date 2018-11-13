@@ -12,8 +12,6 @@ let currentChannel = '';
 let isHidden = false;
 let playerInfos;
 
-let isPlaying = false;
-
 
 chrome.runtime.onMessage.addListener(function (message) {
     if (message.type && (message.type === createType)) {

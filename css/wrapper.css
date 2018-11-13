@@ -10,10 +10,10 @@
 }
 
 #top-layer {
-    position: inherit;
-    z-index: inherit;
-    height: inherit;
+    position: absolute;
+    height: 80%;
     width: inherit;
+    z-index: auto;
 }
 
 #app {

@@ -220,7 +220,7 @@ function createContainer(channelId, isHidden) {
         player.play();
     });
 
-    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, () => {
+    embed.addEventListener(Twitch.Embed.VIDEO_PLAY, (e) => {
         if (channelId !== player.getChannel()) {
             chrome.runtime.sendMessage({ type: changeHostType, channelId: player.getChannel() });
         }
