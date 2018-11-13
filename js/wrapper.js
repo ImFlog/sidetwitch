@@ -8,14 +8,15 @@ const pauseType = 'PAUSE_CHANNEL';
 const hideType = 'HIDE_CHANNEL';
 const changeHostType = 'CHANGE_HOST_CHANNEL';
 const updatePlayerInfosType = 'UPDATE_PLAYER_INFOS';
+const toggleCommand = 'toggle-command';
 
 const defaultWidth = '400';
 const defaultHeight = '300';
 
 function PlayerInfos () {
     return {
-        x: 0,
-        y: 0,
+        x: 10,
+        y: 10,
         width: defaultWidth,
         height: defaultHeight
     };
@@ -36,7 +37,7 @@ let startWidthResize, startHeightResize;
 chrome.runtime.onMessage.addListener(function (message) {
     if (message.type) {
         if (message.type === createType) {
-            playerInfos = playerInfos || message.playerInfos;
+            playerInfos = message.playerInfos || playerInfos;
             startVideo(message.text, message.isHidden);
         } else if (message.type === removeType) {
             clearPage();
@@ -226,6 +227,8 @@ function createContainer(channelId, isHidden) {
         }
     });
 }
+
+
 /*
 * Code from https://medium.com/the-z/making-a-resizable-div-in-js-is-not-easy-as-you-think-bda19a1bc53d
 */
