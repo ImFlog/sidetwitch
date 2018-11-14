@@ -6,9 +6,11 @@ const removeType = 'REMOVE_CHANNEL';
 const pauseType = 'PAUSE_CHANNEL';
 const hideType = 'HIDE_CHANNEL';
 const changeHostType = 'CHANGE_HOST_CHANNEL';
+const updatePlayerInfosType = 'UPDATE_PLAYER_INFOS';
 
 let currentChannel = '';
 let isHidden = false;
+let playerInfos;
 
 
 chrome.runtime.onMessage.addListener(function (message) {
@@ -17,9 +19,12 @@ chrome.runtime.onMessage.addListener(function (message) {
         notifyContainerCreation()
     } else if (message.type && (message.type === removeType)) {
         currentChannel = '';
+        playerInfos = null;
         notifyContainerDeletion()
     } else if (message.type && (message.type === changeHostType)) {
         currentChannel = message.channelId
+    } else if (message.type && (message.type === updatePlayerInfosType)) {
+        notifyContainerInfos(message.playerInfos);
     }
 });
 
@@ -53,7 +58,7 @@ function notifyContainerCreation() {
         if (!!tabs[0]) {
             chrome.tabs.sendMessage(
                 tabs[0].id,
-                { type: createType, text: currentChannel, isHidden: isHidden },
+                { type: createType, text: currentChannel, isHidden: isHidden, playerInfos },
                 () => { }
             )
         }
@@ -70,6 +75,19 @@ function notifyContainerCreation() {
             }
         }
     })
+}
+
+function notifyContainerInfos(infos) {
+    playerInfos = infos;
+    chrome.tabs.query({ active: false, currentWindow: true }, function (tabs) {
+        for (let i = 0; i < tabs.length; i++) {
+            chrome.tabs.sendMessage(
+                tabs[i].id,
+                { type: updatePlayerInfosType, playerInfos },
+                () => { }
+            )
+        }
+    });
 }
 
 function notifyContainerDeletion() {
@@ -90,7 +108,7 @@ function notifyContainerDeletion() {
                 () => { }
             )
         }
-    })
+    });
 }
 
 // Player hidding feature
