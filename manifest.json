@@ -5,7 +5,9 @@
     "version": "1.0.0",
     "permissions": [
         "activeTab",
-        "tabs"
+        "tabs",
+        "webRequest",
+        "webRequestBlocking"
     ],
     "content_scripts": [
         {
@@ -36,7 +38,7 @@
     "commands": {
         "toggle-display": {
             "suggested_key": {
-                "default": "Ctrl+Z"
+                "default": "Ctrl+Shift+Z"
             },
             "description": "Toggle Twitch Iframe display"
         }

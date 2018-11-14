@@ -8,7 +8,6 @@ const pauseType = 'PAUSE_CHANNEL';
 const hideType = 'HIDE_CHANNEL';
 const changeHostType = 'CHANGE_HOST_CHANNEL';
 const updatePlayerInfosType = 'UPDATE_PLAYER_INFOS';
-const toggleCommand = 'toggle-command';
 
 const defaultWidth = '400';
 const defaultHeight = '300';
@@ -42,7 +41,7 @@ chrome.runtime.onMessage.addListener(function (message) {
         } else if (message.type === removeType) {
             clearPage();
         } else if (message.type === pauseType) {
-            player.pause();
+            pausePlayer();
         } else if (message.type === hideType) {
             togglePlayer();
         } else if (message.type === updatePlayerInfosType) {
@@ -51,6 +50,12 @@ chrome.runtime.onMessage.addListener(function (message) {
         }
     }
 });
+
+function pausePlayer(){
+    if (player) {
+        player.pause();
+    }
+}
 
 function startVideo(channelId, isHidden) {
     let elem = document.getElementById(containerId);
@@ -66,7 +71,7 @@ function startVideo(channelId, isHidden) {
 
 function clearPage() {
     let elem = document.getElementById(containerId);
-    if (elem != null) {
+    if (elem !== null) {
         elem.parentNode.removeChild(elem);
     }
     player = null;
@@ -75,14 +80,14 @@ function clearPage() {
 
 function togglePlayer() {
     let elem = document.getElementById(containerId);
-    if (elem) {
+    if (!!elem) {
         if (elem.style.display === 'none') {
             // Show player
             player.play();
             elem.style.display = 'block'
         } else {
             // Hide player
-            player.pause();
+            pausePlayer();
             elem.style.display = 'none'
         }
     }
