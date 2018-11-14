@@ -14,7 +14,7 @@ When you move your mouse above the iframe, some contextual actions are available
 - You can close the window by clicking ![the close button](img/x-circle.svg)
 - You can drag the window by grabbing ![the move button](img/move.svg)
 
-You can also toggle the iframe display by using the keybinding "Alt+Shift+T".
+You can also toggle the iframe display by using the keybinding "Ctrl+Shift+Z".
 
 ## Bugs
 Do not hesitate to submit an issue [in github](https://github.com/nugetchar/sidetwitch) if you find any bug.
