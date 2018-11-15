@@ -5,9 +5,7 @@
     "version": "1.0.0",
     "permissions": [
         "activeTab",
-        "tabs",
-        "webRequest",
-        "webRequestBlocking"
+        "tabs"
     ],
     "content_scripts": [
         {
