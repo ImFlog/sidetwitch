@@ -114,6 +114,7 @@ function notifyContainerDeletion() {
 
 // Player hidding feature
 chrome.commands.onCommand.addListener(function (command) {
+    console.info('Received command', command);
     if (command === toggleCommand) {
         isHidden = !isHidden
         // Send a message to every content-script asking to pause and hide.

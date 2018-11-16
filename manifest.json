@@ -36,7 +36,7 @@
     "commands": {
         "toggle-display": {
             "suggested_key": {
-                "default": "Ctrl+Shift+Z"
+                "default": "Ctrl+Shift+Space"
             },
             "description": "Toggle Twitch Iframe display"
         }
